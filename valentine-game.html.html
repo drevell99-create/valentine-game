@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Be My Valentine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+    }
+
+        body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #ffb6c1 0, #ff4b6e 40%, #2b0020 100%);
+      color: #fff;
+    }
+
+    .game-wrapper {
+      width: 100%;
+      max-width: 480px;
+      padding: 16px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      padding: 16px 16px 20px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+
+    .title {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .title h1 {
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.95rem;
+      opacity: 0.9;
+      margin-bottom: 10px;
+    }
+
+    .subtitle span.name {
+      font-weight: 600;
+      color: #ffe6f2;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+
+    .stat-label {
+      opacity: 0.85;
+    }
+
+    .stat-value {
+      font-weight: 700;
+      color: #ffe6f2;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #ffe6f2, #ff99c8, #ff4b6e);
+      transition: width 0.3s ease-out;
+    }
+
+    .grid {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      gap: 4px;
+      margin-bottom: 12px;
+      touch-action: none;
+    }
+
+    .cell {
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out;
+    }
+
+    .cell:active {
+      transform: scale(0.95);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    }
+
+    .c0 { background: #ff6b81; }
+    .c1 { background: #ff9ff3; }
+    .c2 { background: #feca57; }
+    .c3 { background: #1dd1a1; }
+    .c4 { background: #54a0ff; }
+
+    .cell span {
+      text-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+    }
+
+    .message {
+      text-align: center;
+      font-size: 0.95rem;
+      min-height: 1.4em;
+      margin-bottom: 10px;
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #2b0020;
+      background: #ffe6f2;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+    }
+
+    .btn:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: #ffe6f2;
+      border: 1px solid rgba(255, 230, 242, 0.6);
+    }
+
+    .valentine-popup-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .valentine-popup {
+      background: radial-gradient(circle at top, #ffe6f2 0, #ff99c8 40%, #ff4b6e 100%);
+      border-radius: 20px;
+      padding: 20px 18px 18px;
+      max-width: 360px;
+      width: 90%;
+      text-align: center;
+      color: #2b0020;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .valentine-popup h2 {
+      font-size: 1.6rem;
+      margin-bottom: 6px;
+    }
+
+    .valentine-popup p {
+      font-size: 1rem;
+      margin-bottom: 12px;
+    }
+
+    .valentine-popup .big-heart {
+      font-size: 2.4rem;
+      margin-bottom: 10px;
+      animation: heartbeat 1.1s infinite;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      25% { transform: scale(1.15); }
+      50% { transform: scale(0.95); }
+      75% { transform: scale(1.1); }
+    }
+
+    .confetti {
+      position: fixed;
+      pointer-events: none;
+      inset: 0;
+      overflow: hidden;
+      z-index: 998;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 10px;
+      height: 14px;
+      border-radius: 3px;
+      opacity: 0.9;
+      animation: fall 2.4s linear forwards;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translate3d(0, -100%, 0) rotateZ(0deg);
+      }
+      100% {
+        transform: translate3d(0, 120vh, 0) rotateZ(360deg);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .title h1 {
+        font-size: 1.5rem;
+      }
+      .grid {
+        gap: 3px;
+      }
+      .cell {
+        border-radius: 8px;
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-wrapper">
+    <div class="card">
+      <div class="title">
+        <h1>I Have A Question Princess💘</h1>
+      </div>
+      <div class="subtitle">
+        You Know How To Play So I Made This Easy Lol, <span class="name">Princess K.U.T</span>.
+      </div>
+
+      <div class="stats">
+        <div>
+          <span class="stat-label">Score:</span>
+          <span class="stat-value" id="score">0</span>
+        </div>
+        <div>
+          <span class="stat-label">Target:</span>
+          <span class="stat-value" id="targetScore">500</span>
+        </div>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+
+      <div class="message" id="message">
+        Swap adjacent candies to make lines of 3+ no power ups lol.
+      </div>
+
+      <div class="grid" id="grid"></div>
+
+      <div class="btn-row">
+        <button class="btn" id="resetBtn">Reset</button>
+        <button class="btn btn-secondary" id="hintBtn">Hint</button>
+        <button class="btn btn-secondary" id="musicBtn">Music ♫</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="valentine-popup-backdrop" id="popupBackdrop">
+    <div class="valentine-popup">
+      <div class="big-heart">❤️</div>
+      <h2>Will you be my Valentine?</h2>
+      <p>
+        Sorry it took me forever, since ian have much to buy i tried some different.  
+        Will you say yes and keep playing life with me?
+      </p>
+      <button class="btn" id="yesBtn">Yes, of course Big Daddy💕</button>
+    </div>
+  </div>
+
+  <div class="confetti" id="confettiContainer"></div>
+
+  <audio id="bgMusic" src="valentine-music.mp3" loop></audio>
+  
+  <script>
+    const GRID_SIZE = 8;
+    const CANDY_TYPES = [
+      { emoji: "🍓", className: "c0" },
+      { emoji: "🍒", className: "c1" },
+      { emoji: "🍫", className: "c2" },
+      { emoji: "🍬", className: "c3" },
+      { emoji: "🩷", className: "c4" }
+    ];
+
+    const TARGET_SCORE = 1500;
+
+    
+    const gridElement = document.getElementById("grid");
+    const scoreElement = document.getElementById("score");
+    const targetScoreElement = document.getElementById("targetScore");
+    const messageElement = document.getElementById("message");
+    const progressFill = document.getElementById("progressFill");
+    const popupBackdrop = document.getElementById("popupBackdrop");
+    const yesBtn = document.getElementById("yesBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const hintBtn = document.getElementById("hintBtn");
+    const confettiContainer = document.getElementById("confettiContainer");
+    const music = document.getElementById("bgMusic");
+    const musicBtn = document.getElementById("musicBtn");
+
+    let musicPlaying = false;
+    let grid = [];
+    let score = 0;
+    let selectedCell = null;
+    let isAnimating = false;
+
+    targetScoreElement.textContent = TARGET_SCORE;
+
+    function randomCandy() {
+      const idx = Math.floor(Math.random() * CANDY_TYPES.length);
+      return idx;
+    }
+
+    function initGrid() {
+      grid = [];
+      for (let r = 0; r < GRID_SIZE; r++) {
+        const row = [];
+        for (let c = 0; c < GRID_SIZE; c++) {
+          row.push(randomCandy());
+        }
+        grid.push(row);
+      }
+      removeInitialMatches();
+      renderGrid();
+      updateScore(0, true);
+      messageElement.textContent = "Swap adjacent candies to make lines of 3+ no Power ups lol.";
+    }
+
+    function removeInitialMatches() {
+      let changed = true;
+      while (changed) {
+        changed = false;
+        const matches = findMatches();
+        if (matches.length > 0) {
+          changed = true;
+          for (const { row, col } of matches) {
+            grid[row][col] = randomCandy();
+          }
+        }
+      }
+    }
+
+    function renderGrid() {
+      gridElement.innerHTML = "";
+      for (let r = 0; r < GRID_SIZE; r++) {
+        for (let c = 0; c < GRID_SIZE; c++) {
+          const cell = document.createElement("div");
+          cell.classList.add("cell");
+          const candyIndex = grid[r][c];
+          const candy = CANDY_TYPES[candyIndex];
+          cell.classList.add(candy.className);
+          cell.dataset.row = r;
+          cell.dataset.col = c;
+
+          const span = document.createElement("span");
+          span.textContent = candy.emoji;
+          cell.appendChild(span);
+
+          cell.addEventListener("mousedown", handleCellPointerDown);
+          cell.addEventListener("touchstart", handleCellPointerDown, { passive: false });
+
+          gridElement.appendChild(cell);
+        }
+      }
+    }
+
+    function handleCellPointerDown(e) {
+      e.preventDefault();
+      if (isAnimating) return;
+
+      const cell = e.currentTarget;
+      const row = parseInt(cell.dataset.row, 10);
+      const col = parseInt(cell.dataset.col, 10);
+
+      if (!selectedCell) {
+        selectedCell = { row, col };
+        highlightSelectedCell(true);
+      } else {
+        const prev = selectedCell;
+        if (prev.row === row && prev.col === col) {
+          highlightSelectedCell(false);
+          selectedCell = null;
+          return;
+        }
+
+        if (isAdjacent(prev.row, prev.col, row, col)) {
+          swapAndCheck(prev.row, prev.col, row, col);
+        } else {
+          highlightSelectedCell(false);
+          selectedCell = { row, col };
+          highlightSelectedCell(true);
+        }
+      }
+    }
+
+    function highlightSelectedCell(on) {
+      if (!selectedCell) return;
+      const selector = `.cell[data-row="${selectedCell.row}"][data-col="${selectedCell.col}"]`;
+      const cell = gridElement.querySelector(selector);
+      if (!cell) return;
+      if (on) {
+        cell.style.outline = "3px solid #ffe6f2";
+        cell.style.outlineOffset = "-3px";
+      } else {
+        cell.style.outline = "none";
+      }
+    }
+
+    function isAdjacent(r1, c1, r2, c2) {
+      const dr = Math.abs(r1 - r2);
+      const dc = Math.abs(c1 - c2);
+      return (dr + dc === 1);
+    }
+
+    function swapAndCheck(r1, c1, r2, c2) {
+      isAnimating = true;
+      highlightSelectedCell(false);
+
+      swapCandies(r1, c1, r2, c2);
+      renderGrid();
+
+      const matches = findMatches();
+      if (matches.length === 0) {
+        swapCandies(r1, c1, r2, c2);
+        setTimeout(() => {
+          renderGrid();
+          isAnimating = false;
+        }, 150);
+        messageElement.textContent = "No match—try a different swap.";
+      } else {
+        handleMatches(matches);
+      }
+      selectedCell = null;
+    }
+
+    function swapCandies(r1, c1, r2, c2) {
+      const temp = grid[r1][c1];
+      grid[r1][c1] = grid[r2][c2];
+      grid[r2][c2] = temp;
+    }
+
+    function findMatches() {
+      const matches = [];
+
+      for (let r = 0; r < GRID_SIZE; r++) {
+        let count = 1;
+        for (let c = 1; c < GRID_SIZE; c++) {
+          if (grid[r][c] === grid[r][c - 1]) {
+            count++;
+          } else {
+            if (count >= 3) {
+              for (let k = 0; k < count; k++) {
+                matches.push({ row: r, col: c - 1 - k });
+              }
+            }
+            count = 1;
+          }
+        }
+        if (count >= 3) {
+          for (let k = 0; k < count; k++) {
+            matches.push({ row: r, col: GRID_SIZE - 1 - k });
+          }
+        }
+      }
+
+      for (let c = 0; c < GRID_SIZE; c++) {
+        let count = 1;
+        for (let r = 1; r < GRID_SIZE; r++) {
+          if (grid[r][c] === grid[r - 1][c]) {
+            count++;
+          } else {
+            if (count >= 3) {
+              for (let k = 0; k < count; k++) {
+                matches.push({ row: r - 1 - k, col: c });
+              }
+            }
+            count = 1;
+          }
+        }
+        if (count >= 3) {
+          for (let k = 0; k < count; k++) {
+            matches.push({ row: GRID_SIZE - 1 - k, col: c });
+          }
+        }
+      }
+
+      const unique = [];
+      const seen = new Set();
+      for (const m of matches) {
+        const key = m.row + "-" + m.col;
+        if (!seen.has(key)) {
+          seen.add(key);
+          unique.push(m);
+        }
+      }
+      return unique;
+    }
+
+    function handleMatches(matches) {
+      const points = matches.length * 20;
+      updateScore(score + points);
+      messageElement.textContent = `Nice! You cleared ${matches.length} candies.`;
+
+      for (const { row, col } of matches) {
+        grid[row][col] = null;
+        spawnSparkle(row, col);
+      }
+
+      setTimeout(() => {
+        collapseGrid();
+        refillGrid();
+        renderGrid();
+
+        const newMatches = findMatches();
+        if (newMatches.length > 0) {
+          setTimeout(() => handleMatches(newMatches), 180);
+        } else {
+          isAnimating = false;
+        }
+      }, 180);
+    }
+
+    function collapseGrid() {
+      for (let c = 0; c < GRID_SIZE; c++) {
+        let writeRow = GRID_SIZE - 1;
+        for (let r = GRID_SIZE - 1; r >= 0; r--) {
+          if (grid[r][c] !== null) {
+            grid[writeRow][c] = grid[r][c];
+            if (writeRow !== r) {
+              grid[r][c] = null;
+            }
+            writeRow--;
+          }
+        }
+        for (let r = writeRow; r >= 0; r--) {
+          grid[r][c] = null;
+        }
+      }
+    }
+
+    function refillGrid() {
+      for (let r = 0; r < GRID_SIZE; r++) {
+        for (let c = 0; c < GRID_SIZE; c++) {
+          if (grid[r][c] === null) {
+            grid[r][c] = randomCandy();
+          }
+        }
+      }
+    }
+
+    function updateScore(newScore, reset = false) {
+      score = newScore;
+      scoreElement.textContent = score;
+
+      const progress = Math.min(100, (score / TARGET_SCORE) * 100);
+      progressFill.style.width = progress + "%";
+
+      if (!reset && score >= TARGET_SCORE) {
+        showValentinePopup();
+      }
+    }
+
+    function showValentinePopup() {
+      popupBackdrop.style.display = "flex";
+      launchConfetti();
+    }
+
+    yesBtn.addEventListener("click", () => {
+      popupBackdrop.style.display = "none";
+      messageElement.textContent = "She said yes! Keep playing for fun. 💕";
+    });
+
+    resetBtn.addEventListener("click", () => {
+      popupBackdrop.style.display = "none";
+      initGrid();
+    });
+
+    hintBtn.addEventListener("click", () => {
+      const move = findAnyValidMove();
+      if (move) {
+        const selector1 = `.cell[data-row="${move.r1}"][data-col="${move.c1}"]`;
+        const selector2 = `.cell[data-row="${move.r2}"][data-col="${move.c2}"]`;
+        const cell1 = gridElement.querySelector(selector1);
+        const cell2 = gridElement.querySelector(selector2);
+        if (cell1 && cell2) {
+          cell1.style.animation = "hintPulse 0.6s ease-in-out 0s 2";
+          cell2.style.animation = "hintPulse 0.6s ease-in-out 0s 2";
+          setTimeout(() => {
+            cell1.style.animation = "";
+            cell2.style.animation = "";
+          }, 1400);
+        }
+        messageElement.textContent = "Try swapping the highlighted candies.";
+      } else {
+        messageElement.textContent = "No moves left—hit Reset to shuffle.";
+      }
+    });
+
+    musicBtn.addEventListener("click", () => {
+      if (!musicPlaying) {
+        music.play().then(() => {
+          musicPlaying = true;
+          musicBtn.textContent = "Music ♫ (On)";
+        }).catch(() => {
+          messageElement.textContent = "Tap again to start the music.";
+        });
+      } else {
+        music.pause();
+        musicPlaying = false;
+        musicBtn.textContent = "Music ♫ (Off)";
+      }
+    });
+
+    const style = document.createElement("style");
+    style.textContent = `
+      @keyframes hintPulse {
+        0% { transform: scale(1); box-shadow: 0 0 0 rgba(255, 230, 242, 0.0); }
+        50% { transform: scale(1.08); box-shadow: 0 0 12px rgba(255, 230, 242, 0.9); }
+        100% { transform: scale(1); box-shadow: 0 0 0 rgba(255, 230, 242, 0.0); }
+      }
+    `;
+    document.head.appendChild(style);
+
+    function findAnyValidMove() {
+      for (let r = 0; r < GRID_SIZE; r++) {
+        for (let c = 0; c < GRID_SIZE; c++) {
+          if (c + 1 < GRID_SIZE) {
+            swapCandies(r, c, r, c + 1);
+            const matches = findMatches();
+            swapCandies(r, c, r, c + 1);
+            if (matches.length > 0) {
+              return { r1: r, c1: c, r2: r, c2: c + 1 };
+            }
+          }
+          if (r + 1 < GRID_SIZE) {
+            swapCandies(r, c, r + 1, c);
+            const matches = findMatches();
+            swapCandies(r, c, r + 1, c);
+            if (matches.length > 0) {
+              return { r1: r, c1: c, r2: r + 1, c2: c };
+            }
+          }
+        }
+      }
+      return null;
+    }
+
+    function spawnSparkle(row, col) {
+      const cellSelector = `.cell[data-row="${row}"][data-col="${col}"]`;
+      const cell = gridElement.querySelector(cellSelector);
+      if (!cell) return;
+
+      const sparkle = document.createElement("div");
+      sparkle.style.position = "absolute";
+      sparkle.style.width = "8px";
+      sparkle.style.height = "8px";
+      sparkle.style.borderRadius = "50%";
+      sparkle.style.background = "rgba(255, 255, 255, 0.9)";
+      sparkle.style.left = "50%";
+      sparkle.style.top = "50%";
+      sparkle.style.transform = "translate(-50%, -50%)";
+      sparkle.style.boxShadow = "0 0 10px rgba(255, 255, 255, 0.9)";
+      sparkle.style.opacity = "1";
+      sparkle.style.transition = "transform 0.35s ease-out, opacity 0.35s ease-out";
+
+      cell.appendChild(sparkle);
+
+      requestAnimationFrame(() => {
+        sparkle.style.transform = "translate(-50%, -50%) scale(2.2)";
+        sparkle.style.opacity = "0";
+      });
+
+      setTimeout(() => {
+        sparkle.remove();
+      }, 350);
+    }
+
+    function launchConfetti() {
+      confettiContainer.innerHTML = "";
+      const colors = ["#ff4b6e", "#ffe6f2", "#ff99c8", "#feca57", "#1dd1a1"];
+      const pieces = 80;
+
+      for (let i = 0; i < pieces; i++) {
+        const piece = document.createElement("div");
+        piece.classList.add("confetti-piece");
+        piece.style.left = Math.random() * 100 + "%";
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDelay = (Math.random() * 0.8) + "s";
+        piece.style.transform = "translate3d(0, -100%, 0) rotateZ(" + (Math.random() * 360) + "deg)";
+        confettiContainer.appendChild(piece);
+      }
+
+      setTimeout(() => {
+        confettiContainer.innerHTML = "";
+      }, 3000);
+    }
+
+    initGrid();
+  </script>
+</body>
+</html>
